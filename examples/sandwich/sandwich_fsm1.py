@@ -21,7 +21,7 @@ def build_sandwich_fsm():
     #data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/sandwich-model')
     #img_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images_feedback')
     data_dir = "/gabriel-sandwich/model"
-    img_dir = "/images_feedback"
+    img_dir = "/gabriel-sandwich/images_feedback"
     labels = ["bread", "cheese", "cucumber", "egg", "ham", "lettuce", "tomato"]
     proc = processor_zoo.FasterRCNNProcessor(
         proto_path=os.path.join(data_dir, 'faster_rcnn_test.pt'),
@@ -130,7 +130,7 @@ def build_sandwich_fsm():
 if __name__ == "__main__":
     sandwich_fsm = build_sandwich_fsm()
     # save to disk
-    with open('examples/sandwich/sandwich.pbfsm', 'wb') as f:
+    with open('sandwich1.pbfsm', 'wb') as f:
         f.write(fsm.StateMachine.to_bytes(
             name='sandwich',
             start_state=sandwich_fsm
