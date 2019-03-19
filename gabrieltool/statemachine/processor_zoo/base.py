@@ -199,3 +199,101 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
             cv2.waitKey(1)
         logger.debug('results: {}'.format(results))
         return results
+
+
+class FasterRCNNProcessor(SerializableProcessor):
+
+    @record_kwargs
+    def __init__(self, proto_path, model_path, labels=None, conf_threshold=0.8):
+        # For default parameter settings,
+        # see:
+        # https://github.com/rbgirshick/fast-rcnn/blob/b612190f279da3c11dd8b1396dd5e72779f8e463/lib/fast_rcnn/config.py
+        super(FasterRCNNProcessor, self).__init__()
+        #if config.USE_GPU:
+        caffe.set_mode_gpu()
+        caffe.set_device(0)
+        faster_rcnn_config.GPU_ID = 0
+        #else:
+        #    caffe.set_mode_cpu()
+
+
+
+        self._scale = 600
+        self._max_size = 640
+        # Pixel mean values (BGR order) as a (1, 1, 3) array
+        # We use the same pixel mean for all networks even though it's not exactly what
+        # they were trained with
+        self._pixel_means = [102.9801, 115.9465, 122.7717]
+        self._nms_threshold = 0.3
+        self._labels = labels
+        self._net = caffe.Net(proto_path, model_path, caffe.TEST)
+        self._conf_threshold = conf_threshold
+        logger.debug(
+            'Created a FasterRCNNProcessor:\nDNN proto definition is at {}\n'
+            'model weight is at {}\nlabels are {}\nconf_threshold is {}'.format(
+                proto_path, model_path, self._labels, self._conf_threshold))
+
+    @classmethod
+    def from_json(cls, json_obj):
+        try:
+            kwargs = copy.copy(json_obj)
+            kwargs['labels'] = json_obj['labels']
+            kwargs['_conf_threshold'] = float(json_obj['conf_threshold'])
+        except ValueError as e:
+            raise ValueError(
+                'Failed to convert json object to {} instance. '
+                'The input json object is {}'.format(cls.__name__,
+                                                     json_obj))
+        return cls(**json_obj)
+
+    @classmethod
+    def detect_object(img, resize_ratio = 1):
+        scores, boxes = im_detect(self._net, img)
+	results = {}
+        for cls_idx in xrange(len(self._labels)):
+            cls_idx += 1    # skip the background
+            cls_boxes = boxes[:, 4 * cls_idx : 4 * (cls_idx + 1)]
+            cls_scores = scores[:, cls_idx]
+
+            # dets: detected results, each line is in [x1, y1, x2, y2, confidence] format
+            dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32)
+
+            # non maximum suppression
+            keep = nms(dets, NMS_THRESH)
+            dets = dets[keep, :]
+
+            # filter out low confidence scores
+            inds = np.where(dets[:, -1] >= CONF_THRESH)[0]
+            dets = dets[inds, :]
+
+            # now change dets format to [x1, y1, x2, y2, confidence, cls_idx]
+            dets = np.hstack((dets, np.ones((dets.shape[0], 1)) * (cls_idx - 1)))
+            for i in range(dets.shape[0]):
+                classId = dets[i][5]
+                if self._labels[classId] not in results:
+                    results[self._labels[classId]] = []
+                x1 = dets[i][0] / resize_ratio
+                y1 = dets[i][1] / resize_ratio
+                x2 = dets[i][2] / resize_ratio
+                y2 = dets[i][3] / resize_ratio
+                results[self._labels[classId]].append([x1, y1, x2, y2, dets[i][4], classId])
+        return results
+
+    def _getOutputsNames(self, net):
+        layersNames = net.getLayerNames()
+        return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+    def __call__(self, image):
+        height, width = image.shape[:2]
+        ## preprocessing of input image
+        resize_ratio = 1
+        im = image
+        if max(image.shape) > self._max_size:
+            resize_ratio = float(self._max_size) / max(height, width)
+            im = cv2.resize(image, (0,0), fx=resize_ratio, fy=resize_ratio, interpolation=cv2.INTER_AREA)
+
+        # infer
+        results = self.detect_object(im, resize_ratio)
+        logger.debug('results: {}'.format(results))
+        return results
+
