@@ -15,6 +15,17 @@ import copy
 
 GABRIEL_DEBUG = os.getenv('GABRIEL_DEBUG', False)
 
+
+faster_rcnn_root = os.getenv('FASTER_RCNN_ROOT','.')
+sys.path.append(os.path.join(faster_rcnn_root, "tools"))
+import _init_paths
+from fast_rcnn.config import cfg as faster_rcnn_config
+from fast_rcnn.test import im_detect
+from fast_rcnn.nms_wrapper import nms
+sys.path.append(os.path.join(faster_rcnn_root,"python"))
+
+import caffe
+
 # TODO (junjuew): move this to cvutil?
 
 
