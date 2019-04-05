@@ -143,7 +143,7 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
     def _getOutputsNames(self, net):
         #layersNames = net.getLayerNames()
         #return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-	return net.getUnconnectedOutLayersNames()
+        return net.getUnconnectedOutLayersNames()
     def __call__(self, image):
         height, width = image.shape[:2]
 	print "Start calling opencv"
