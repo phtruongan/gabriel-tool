@@ -171,18 +171,18 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
 
         # postprocess
         layerNames = self._net.getLayerNames()
-	lastLayerId = self._net.getLayerId(layerNames[-1])
-	lastLayer = self._net.getLayer(lastLayerId)
-	tmpResult = {}
-	if lastLayer.type != 'DetectionOutput':
-	    return tmpResult 
-	classIds = []
+        lastLayerId = self._net.getLayerId(layerNames[-1])
+        lastLayer = self._net.getLayer(lastLayerId)
+        tmpResult = {}
+        if lastLayer.type != 'DetectionOutput':
+            return tmpResult 
+        classIds = []
         confidences = []
         boxes = []
         for out in outs:
             s = np.array(out)
             print(s.shape)
-	    for detection in out[0, 0]:
+            for detection in out[0, 0]:
                 confidence = detection[2]
                 if confidence > self._conf_threshold:
                     left = int(detection[3])
@@ -230,7 +230,7 @@ class FasterRCNNProcessor(SerializableProcessor):
         caffe.set_mode_gpu()
         caffe.set_device(0)
         faster_rcnn_config.GPU_ID = 0
-	faster_rcnn_config.TEST.HAS_RPN = True
+        faster_rcnn_config.TEST.HAS_RPN = True
         self._scale = 600
         self._max_size = 640
         # Pixel mean values (BGR order) as a (1, 1, 3) array
@@ -242,7 +242,7 @@ class FasterRCNNProcessor(SerializableProcessor):
         self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
         self._conf_threshold = conf_threshold
         self._first = 1
-	logger.debug(
+        logger.debug(
             'Created a FasterRCNNProcessor:\nDNN proto definition is at {}\n'
             'model weight is at {}\nlabels are {}\nconf_threshold is {}'.format(
                 proto_path, model_path, self._labels, self._conf_threshold))
@@ -262,10 +262,10 @@ class FasterRCNNProcessor(SerializableProcessor):
 
 
     def __call__(self, image):
-	if self._first == 1:
-	    self._first = 0
-	    caffe.set_mode_gpu()
-	    caffe.set_device(0)
+        if self._first == 1:
+            self._first = 0
+            caffe.set_mode_gpu()
+            caffe.set_device(0)
         height, width = image.shape[:2]
         ## preprocessing of input image
         resize_ratio = 1
@@ -275,10 +275,10 @@ class FasterRCNNProcessor(SerializableProcessor):
             im = cv2.resize(image, (0,0), fx=resize_ratio, fy=resize_ratio, interpolation=cv2.INTER_AREA)
 
         # infer
-	NMS_THRESH = self._nms_threshold
-	CONF_THRESH = self._conf_threshold
-    	scores, boxes = im_detect(self._net, im)
-	results = {}
+        NMS_THRESH = self._nms_threshold
+        CONF_THRESH = self._conf_threshold
+        scores, boxes = im_detect(self._net, im)
+        results = {}
         for cls_idx in xrange(len(self._labels)):
             cls_idx += 1    # skip the background
             cls_boxes = boxes[:, 4 * cls_idx : 4 * (cls_idx + 1)]
