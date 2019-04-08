@@ -146,7 +146,7 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
         return net.getUnconnectedOutLayersNames()
     def __call__(self, image):
         height, width = image.shape[:2]
-	print "Start calling opencv"
+	print("Start calling opencv")
         # resize image to correct size
         im_size_min = np.min(image.shape[0:2])
         im_size_max = np.max(image.shape[0:2])
@@ -164,7 +164,7 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
         self._net.setInput(imInfo, 'im_info')
 
         # infer
-	print self._getOutputsNames(self._net)
+	print(self._getOutputsNames(self._net))
         outs = self._net.forward(self._getOutputsNames(self._net))
         t, _ = self._net.getPerfProfile()
         logger.debug('Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency()))
@@ -181,7 +181,7 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
         boxes = []
         for out in outs:
             s = np.array(out)
-	    print s.shape
+	    print(s.shape)
 	    for detection in out[0, 0]:
                 confidence = detection[2]
                 if confidence > self._conf_threshold:
