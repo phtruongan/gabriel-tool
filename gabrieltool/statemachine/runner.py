@@ -23,6 +23,6 @@ class Runner(object):
 
         """
         next_state, instruction = self.current_state(img)
-        print instruction
+        print(instruction)
         self.current_state = next_state
         return instruction
