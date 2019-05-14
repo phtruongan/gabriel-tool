@@ -46,7 +46,7 @@ def fixStringLabels(start_state):
     visited = []
     work_queue = [start_state]
     while work_queue:
-        cur_state = work_queue.pop[0]
+        cur_state = work_queue.pop(0)
         if cur_state in visited:
             continue
         for processor in cur_state.processors:
