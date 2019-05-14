@@ -53,7 +53,7 @@ def fixStringLabels(start_state):
             labels = processor._callable_obj._labels
             print(labels)
             print(len(labels))
-            if len(labels) == 1:
+            if isinstance(labels, basestring) == True:
                 list_labels = labels.split(",")
                 final_labels = []
                 for i in range(len(list_labels)):
