@@ -42,7 +42,18 @@ import gabriel.proxy
 
 LOG = gabriel.logging.getLogger(__name__)
 
-
+def fixStringLabels(start_state):
+    cur_state = start_state
+    while True:
+        if cur_state.name == "end":
+            break
+        for processor in cur_state.processors:
+            labels = processor._labels
+            print(labels)
+            if len(labels) == 1:
+                processor._labels = labels.split(",")
+        cur_state = cur_state.next_state
+        
 def raw2cv_image(raw_data, gray_scale=False):
     img_array = np.asarray(bytearray(raw_data), dtype=np.int8)
     if gray_scale:
@@ -59,6 +70,7 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         self._fsm = None
         with open(fsm_path, 'rb') as f:
             self._fsm = fsm.StateMachine.from_bytes(f.read())
+            fixStringLabels(self._fsm)
         self._fsm_runner = runner.Runner(self._fsm)
 
     def terminate(self):
