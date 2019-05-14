@@ -73,7 +73,8 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         result = {}
 
         img = raw2cv_image(data)
-        inst = self._fsm_runner.feed(img)
+        inst, current_state_name = self._fsm_runner.feed(img)
+        
         # gotcha: the Gabriel client expects the absence of 'speech' and 'image'
         # keys when there is no such feedback
         if inst.audio:
@@ -81,9 +82,12 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         if inst.image:
             result['image'] = b64encode(inst.image)
         LOG.info('Current State: {}'.format(self._fsm_runner.current_state))
+        if current_state_name == "end":
+            finish_cookingproxy = True            
         return json.dumps(result)
 
 
+finish_cookingproxy = False
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Gabriel FSM Cognitive Engine')
@@ -123,6 +127,12 @@ if __name__ == "__main__":
 
     try:
         while True:
+            if finish_cookingproxy == True:
+                app_proxy.terminate()
+                app_proxy = CookingProxy(args.fsm_path, image_queue, result_queue, engine_id="Sandwich")
+                app_proxy.start()
+                app_proxy.isDaemon = True
+                finish_cookingproxy = False
             time.sleep(1)
     except Exception as e:
         pass
