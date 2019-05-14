@@ -48,10 +48,10 @@ def fixStringLabels(start_state):
         if cur_state.name == "end":
             break
         for processor in cur_state.processors:
-            labels = processor._labels
+            labels = processor._callable_obj._labels
             print(labels)
             if len(labels) == 1:
-                processor._labels = labels.split(",")
+                processor._callable_obj._labels = labels.split(",")
         cur_state = cur_state.next_state
         
 def raw2cv_image(raw_data, gray_scale=False):
