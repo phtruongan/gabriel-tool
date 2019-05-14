@@ -248,7 +248,7 @@ class FasterRCNNProcessor(SerializableProcessor):
             self._net = savenetwork.list_net(net_idx)
         else:
             self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
-            savenetwork.saveNet(self._net)
+            savenetwork.saveNet(self._net, self._labels)
         self._conf_threshold = conf_threshold
         self._first = 1
         logger.debug(
