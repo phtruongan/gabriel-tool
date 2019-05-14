@@ -330,7 +330,7 @@ class StateMachine(object):
             Processor, proc_desc) for proc_desc in desc.processors]
         state.transitions = [cls._load_transition(
             tran_desc, state_lut) for tran_desc in desc.transitions]
-        print "Hello Loaded all"
+        print("Hello Loaded all")
         return state
 
     @classmethod
