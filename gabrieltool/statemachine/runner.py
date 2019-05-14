@@ -25,4 +25,6 @@ class Runner(object):
         next_state, instruction = self.current_state(img)
         print(instruction)
         self.current_state = next_state
+        print("***********Kaka")
+        print(self.current_state.name)
         return instruction
