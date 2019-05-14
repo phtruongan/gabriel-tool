@@ -128,6 +128,7 @@ if __name__ == "__main__":
     try:
         while True:
             if finish_cookingproxy == True:
+                print("**************************kakaka")
                 app_proxy.terminate()
                 app_proxy = CookingProxy(args.fsm_path, image_queue, result_queue, engine_id="Sandwich")
                 app_proxy.start()
