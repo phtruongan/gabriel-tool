@@ -43,16 +43,21 @@ import gabriel.proxy
 LOG = gabriel.logging.getLogger(__name__)
 
 def fixStringLabels(start_state):
-    cur_state = start_state
-    while True:
-        if cur_state.name == "end":
-            break
+    visited = []
+    work_queue = [start_state]
+    while work_queue:
+        cur_state = work_queue.pop[0]
+        if cur_state in visited:
+            continue
         for processor in cur_state.processors:
             labels = processor._callable_obj._labels
             print(labels)
             if len(labels) == 1:
                 processor._callable_obj._labels = labels.split(",")
-        cur_state = cur_state.next_state
+            print(processor._callable_obj._labels)
+        for tran in cur_state.transitions:
+            work_queue.append(tran.next_state)
+        visited.append(cur_state)
         
 def raw2cv_image(raw_data, gray_scale=False):
     img_array = np.asarray(bytearray(raw_data), dtype=np.int8)
