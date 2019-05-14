@@ -53,7 +53,12 @@ def fixStringLabels(start_state):
             labels = processor._callable_obj._labels
             print(labels)
             if len(labels) == 1:
-                processor._callable_obj._labels = labels.split(",")
+                list_labels = labels.split(",")
+                final_labels = []
+                for i in range(len(list_labels)):
+                    final_labels.append(unicode(list_labels[i],"utf-8"))
+                processor._callable_obj._labels = final_labels
+                print("Find wrong")
             print(processor._callable_obj._labels)
         for tran in cur_state.transitions:
             work_queue.append(tran.next_state)
