@@ -29,6 +29,8 @@ import caffe
 
 # TODO (junjuew): move this to cvutil?
 
+# AN: save create neural network and reuse
+import savenetwork
 
 def drawPred(frame, class_name, conf, left, top, right, bottom):
     # Draw a bounding box.
@@ -239,7 +241,14 @@ class FasterRCNNProcessor(SerializableProcessor):
         self._pixel_means = [102.9801, 115.9465, 122.7717]
         self._nms_threshold = 0.3
         self._labels = labels
-        self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
+           
+        # reuse the network which is already loaded
+        net_idx = savenetwork.findIdx(labels)
+        if net_idx >= 0:
+            self._net = savenetwork.list_net(net_idx)
+        else:
+            self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
+            savenetwork.saveNet(self._net)
         self._conf_threshold = conf_threshold
         self._first = 1
         logger.debug(
