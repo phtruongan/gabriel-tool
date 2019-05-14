@@ -245,7 +245,7 @@ class FasterRCNNProcessor(SerializableProcessor):
         # reuse the network which is already loaded
         net_idx = savenetwork.findIdx(labels)
         if net_idx >= 0:
-            self._net = savenetwork.list_net(net_idx)
+            self._net = savenetwork.list_net[net_idx]
         else:
             self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
             savenetwork.saveNet(self._net, self._labels)
