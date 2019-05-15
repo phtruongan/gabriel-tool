@@ -249,7 +249,7 @@ class FasterRCNNProcessor(SerializableProcessor):
         else:
             self._net = caffe.Net(str(proto_path), str(model_path), caffe.TEST)
             savenetwork.saveNet(self._net, self._labels)
-        self._conf_threshold = conf_threshold
+        self._conf_threshold = float(conf_threshold)
         self._first = 1
         logger.debug(
             'Created a FasterRCNNProcessor:\nDNN proto definition is at {}\n'
