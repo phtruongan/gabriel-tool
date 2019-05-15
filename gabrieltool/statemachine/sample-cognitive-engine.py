@@ -105,6 +105,8 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         if inst.image:
             result['image'] = b64encode(inst.image)
         LOG.info('Current State: {}'.format(self._fsm_runner.current_state))
+        print("**********************CurrentState:")
+        print(self._fsm_runner.current_state)
         if current_state_name == "end":
             finish_cookingproxy = True            
         return json.dumps(result)
