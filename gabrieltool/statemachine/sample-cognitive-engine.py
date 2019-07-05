@@ -83,11 +83,14 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
             self._fsm = fsm.StateMachine.from_bytes(f.read())
             fixStringLabels(self._fsm)
         self._fsm_runner = runner.Runner(self._fsm)
+        self._current_state = "start"
 
     def terminate(self):
         super(CookingProxy, self).terminate()
 
     def handle(self, header, data):
+        if self._current_state == "end":
+            self._fsm_runner = runner.Runner(self._fsm)
         LOG.info("received new image")
 
         # status success is needed
@@ -97,7 +100,7 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
 
         img = raw2cv_image(data)
         inst, current_state_name = self._fsm_runner.feed(img)
-        
+        self._current_state = current_state_name
         # gotcha: the Gabriel client expects the absence of 'speech' and 'image'
         # keys when there is no such feedback
         if inst.audio:
@@ -107,8 +110,8 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         LOG.info('Current State: {}'.format(self._fsm_runner.current_state))
         print("**********************CurrentState:")
         print(self._fsm_runner.current_state)
-        if current_state_name == "end":
-            self._fsm_runner = runner.Runner(self._fsm)
+        #if current_state_name == "end":
+            #self._fsm_runner = runner.Runner(self._fsm)
             #finish_cookingproxy = True            
         return json.dumps(result)
 
