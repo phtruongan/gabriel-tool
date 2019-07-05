@@ -16,6 +16,7 @@ class Runner(object):
 
     def __init__(self, start_state):
         super(Runner, self).__init__()
+        #self._start_state = start_state
         self.current_state = start_state
 
     def feed(self, img, debug=False):

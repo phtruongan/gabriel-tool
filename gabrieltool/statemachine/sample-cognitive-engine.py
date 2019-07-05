@@ -108,7 +108,8 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         print("**********************CurrentState:")
         print(self._fsm_runner.current_state)
         if current_state_name == "end":
-            finish_cookingproxy = True            
+            self._fsm_runner = runner.Runner(self._fsm)
+            #finish_cookingproxy = True            
         return json.dumps(result)
 
 
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     result_pub.start()
     result_pub.isDaemon = True
 
-    try:
+    '''try:
         while True:
             if finish_cookingproxy == True:
                 print("**************************kakaka")
@@ -161,7 +162,7 @@ if __name__ == "__main__":
                 finish_cookingproxy = False
             time.sleep(1)
     except Exception as e:
-        pass
+        pass'''
     except KeyboardInterrupt as e:
         sys.stdout.write("user exits\n")
     finally:
