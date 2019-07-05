@@ -163,8 +163,8 @@ if __name__ == "__main__":
             time.sleep(1)
     except Exception as e:
         pass'''
-    except KeyboardInterrupt as e:
-        sys.stdout.write("user exits\n")
+    #except KeyboardInterrupt as e:
+    #    sys.stdout.write("user exits\n")
     finally:
         if video_streaming is not None:
             video_streaming.terminate()
