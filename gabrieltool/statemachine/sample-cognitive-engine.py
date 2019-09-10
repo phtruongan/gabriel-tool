@@ -89,8 +89,8 @@ class CookingProxy(gabriel.proxy.CognitiveProcessThread):
         super(CookingProxy, self).terminate()
 
     def handle(self, header, data):
-        if self._current_state == "end":
-            self._fsm_runner = runner.Runner(self._fsm)
+        #if self._current_state == "end":
+            #self._fsm_runner = runner.Runner(self._fsm)
         LOG.info("received new image")
 
         # status success is needed
