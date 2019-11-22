@@ -1,0 +1,81 @@
+import numpy as np
+import gabrieltool
+from functools import partial
+from gabrieltool.statemachine import fsm, predicate_zoo, processor_zoo
+import os
+import json
+import sys
+
+# need to make a path of model like /gabriel-sandwich/model1/[taskId]/ for proto text file and model file
+model_path = "/gabriel-sandwich/model1"
+
+def generate_gabriel(data,tid):
+    path = saved_path + tid + ".pbfsm"
+    data_dir = model_path
+    objAssocList = [[] for x in range(data['savedData']['video']['number_of_states'])]
+    print data['savedData']['video']['number_of_states']
+    # read all object association list
+    for aSeg in data['savedData']['objAssoc']:
+        idx = aSeg['id']
+        labelIdx = aSeg['labelIdx']
+        if labelIdx == -1:
+            continue
+        objAssocList[idx].append(labelIdx)
+
+    # read all instructions
+    instructions = []
+    for aSeg in data['savedData']['instruction']:
+        idx = aSeg['id']
+        content = aSeg['content']
+        instructions.append(content)
+    # read all labels from file
+    proto_name = [f for f in os.listdir(model_path+"/" + tid) if ".pt" in f][0]
+    proto_path = model_path + "/" + tid + "/" + proto_name
+    model_name = [f for f in os.listdir(model_path+"/" + tid) if ".caffemodel" in f][0]
+    model_path1 = model_path + "/" + tid + "/" + model_name 
+    labels = []
+    line = labelFile.readline()
+    print instructions
+    print objAssocList  
+    while line:
+        labels.append(line.strip())
+        line = labelFile.readline()
+    labelFile.close()
+    print labels
+    proc = processor_zoo.FasterRCNNProcessor(proto_path=proto_path, model_path=model_path1, labels=labels)
+    common_processor = fsm.Processor(callable_obj=proc)
+    st_start = fsm.State(name='start', processors=[common_processor])
+    step_array = []
+    for i in range(0, len(objAssocList)):
+        step_array.append(fsm.State(name=str(i), processors=[common_processor]))
+    st_end = fsm.State(name='end', processors=[common_processor])
+    st_start.transitions.append(fsm.Transition(predicates=[fsm.TransitionPredicate(partial_obj=partial(predicate_zoo.always))], instruction=fsm.Instruction(audio=instructions[0]), next_state=step_array[0]))
+    for i in range(0, len(objAssocList)-1):
+        tmpPredicates = []
+        for j in range(len(objAssocList[i])):
+            tmpPredicates.append(fsm.TransitionPredicate(partial_obj=partial(predicate_zoo.has_obj_cls, cls_name=objAssocList[i][j])))
+        step_array[i].transitions.append(fsm.Transition(predicates=tmpPredicates, instruction=fsm.Instruction(audio=instructions[i+1]), next_state=step_array[i+1]))
+    final_idx = len(objAssocList) - 1
+    tmpPredicates = []
+    for j in range(len(objAssocList[final_idx])):
+        tmpPredicates.append(fsm.TransitionPredicate(partial_obj=partial(predicate_zoo.has_obj_cls, cls_name=objAssocList[final_idx][j])))
+    step_array[final_idx].transitions.append(fsm.Transition(predicates=tmpPredicates, instruction=fsm.Instruction(audio="Congratulation"), next_state=st_end))
+    with open(path, 'wb') as f:
+        f.write(fsm.StateMachine.to_bytes(name='sandwich', start_state=st_start))
+    return True
+
+
+def main(jsonPath, taskId):
+    allFiles = [f for f in os.listdir(saved_path)]
+    jsonPath = saved_path + taskId + "_body_test.json"
+    with open(jsonPath) as json_file:
+        data = json.load(json_file)
+        result = generate_gabriel(data, taskId)
+        if result == True:
+            print "Complete generating the pbfsm file"
+
+if __name__ == "__main__":
+    if sys.argc != 3:
+        print "Please input correct argument python [extract_fsm_git] [json_file] [task_id]"
+    main(sys.argv[1], taskId)
+    # processor
