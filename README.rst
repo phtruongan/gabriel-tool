@@ -37,7 +37,7 @@ Usage
 
 What's included?
 ----------------------
-
+* extract_fsm_git: convert json file from WE to .pbfsm
 * `State Machine`_: Tools to create and persist state machines to describe a wearable cognitive assistant. 
 * `Examples`_: Examples on how to use this tool.
 
