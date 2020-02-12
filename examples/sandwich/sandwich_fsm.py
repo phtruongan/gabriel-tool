@@ -18,10 +18,11 @@ def _load_image_bytes(file_path):
 
 
 def build_sandwich_fsm():
+    # change data_dir, proto_path, model_path and labels below according to Antti's caffe model
     data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/sandwich-model')
-    img_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images_feedback')
-
+    #img_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images_feedback')
     labels = ["tomato", "cheese", "full", "ham", "lettuce", "cucumber", "half", "hamwrong", "bread"]
+    
     proc = processor_zoo.FasterRCNNOpenCVProcessor(
         proto_path=os.path.join(data_dir, 'faster_rcnn_test.pt'),
         model_path=os.path.join(data_dir, 'model.caffemodel'),
@@ -64,8 +65,8 @@ def build_sandwich_fsm():
                 )
             ],
             instruction=fsm.Instruction(
-                audio='Now put a piece of bread on the table.',
-                image=_load_image_bytes(os.path.join(img_dir, 'bread.jpeg'))
+                audio='Now put a piece of bread on the table.'
+                #image=_load_image_bytes(os.path.join(img_dir, 'bread.jpeg'))
             ),
             next_state=st_bread
         )
@@ -82,8 +83,8 @@ def build_sandwich_fsm():
                 )
             ],
             instruction=fsm.Instruction(
-                audio='Now put a piece of ham on the bread.',
-                image=_load_image_bytes(os.path.join(img_dir, 'ham.jpeg'))
+                audio='Now put a piece of ham on the bread.'
+                #image=_load_image_bytes(os.path.join(img_dir, 'ham.jpeg'))
             ),
             next_state=st_ham
         )
@@ -100,8 +101,8 @@ def build_sandwich_fsm():
                 )
             ],
             instruction=fsm.Instruction(
-                audio='Now put a piece of lettuce on the ham.',
-                image=_load_image_bytes(os.path.join(img_dir, 'lettuce.jpeg'))
+                audio='Now put a piece of lettuce on the ham.'
+                #image=_load_image_bytes(os.path.join(img_dir, 'lettuce.jpeg'))
             ),
             next_state=st_lettuce
         )
@@ -127,10 +128,17 @@ def build_sandwich_fsm():
 
 
 if __name__ == "__main__":
-    sandwich_fsm = build_sandwich_fsm()
+    with open('examples/sandwich/sandwich_1.pbfsm','rb') as f:
+        str_bin = f.read()
+        start_state = fsm.StateMachine.from_bytes(data=str_bin)
+        all_processors = start_state.processors
+        for aProcessor in all_processors:
+            name = aProcessor.name
+            print(name)
+    #sandwich_fsm = build_sandwich_fsm()
     # save to disk
-    with open('examples/sandwich/sandwich.pbfsm', 'wb') as f:
-        f.write(fsm.StateMachine.to_bytes(
-            name='sandwich',
-            start_state=sandwich_fsm
-        ))
+    #with open('examples/sandwich/sandwich.pbfsm', 'wb') as f:
+    #    f.write(fsm.StateMachine.to_bytes(
+    #        name='sandwich',
+    #        start_state=sandwich_fsm
+    #    ))
