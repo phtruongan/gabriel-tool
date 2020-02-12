@@ -134,6 +134,7 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
         try:
             kwargs = copy.copy(json_obj)
             kwargs['labels'] = [processor_name + ":" + s for s in json_obj['labels']]
+            json_obj['labels'] = kwargs['labels']
             kwargs['_conf_threshold'] = float(json_obj['conf_threshold'])
         except ValueError as e:
             raise ValueError(
@@ -260,7 +261,9 @@ class FasterRCNNProcessor(SerializableProcessor):
     def from_json(cls, json_obj, processor_name):
         try:
             kwargs = copy.copy(json_obj)
-            kwargs['labels'] = json_obj['labels']
+            kwargs['labels'] = [processor_name + ":" + s for s in json_obj['labels']]
+            json_obj['labels'] = kwargs['labels']
+            #kwargs['labels'] = json_obj['labels']
             kwargs['_conf_threshold'] = float(json_obj['conf_threshold'])
         except ValueError as e:
             raise ValueError(
