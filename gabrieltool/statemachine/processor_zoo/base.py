@@ -79,7 +79,7 @@ class SerializableProcessor(object):
         super(SerializableProcessor, self).__init__(*args, **kwargs)
 
     @classmethod
-    def from_json(cls, json_obj):
+    def from_json(cls, json_obj, processor_name):
         """Create a class instance from a json object.
 
         Subclasses should overide this class depending on the input type of
@@ -130,10 +130,10 @@ class FasterRCNNOpenCVProcessor(SerializableProcessor):
                 proto_path, model_path, self._labels, self._conf_threshold))
 
     @classmethod
-    def from_json(cls, json_obj):
+    def from_json(cls, json_obj, processor_name):
         try:
             kwargs = copy.copy(json_obj)
-            kwargs['labels'] = json_obj['labels']
+            kwargs['labels'] = [processor_name + ":" + s for s in json_obj['labels']]
             kwargs['_conf_threshold'] = float(json_obj['conf_threshold'])
         except ValueError as e:
             raise ValueError(
@@ -257,7 +257,7 @@ class FasterRCNNProcessor(SerializableProcessor):
                 proto_path, model_path, self._labels, self._conf_threshold))
 
     @classmethod
-    def from_json(cls, json_obj):
+    def from_json(cls, json_obj, processor_name):
         try:
             kwargs = copy.copy(json_obj)
             kwargs['labels'] = json_obj['labels']
