@@ -128,7 +128,7 @@ def build_sandwich_fsm():
 
 
 if __name__ == "__main__":
-    with open('examples/sandwich/sandwich_1.pbfsm','rb') as f:
+    with open('examples/sandwich/sandwich.pbfsm','rb') as f:
         str_bin = f.read()
         start_state = fsm.StateMachine.from_bytes(data=str_bin)
         all_processors = start_state.processors
