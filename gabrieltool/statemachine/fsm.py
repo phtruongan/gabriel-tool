@@ -215,7 +215,7 @@ class Processor(FSMObjBase):
         super(Processor, self).from_desc(data)
         callable_class = getattr(processor_zoo, self._pb.callable_name)
         initializer_args = json.loads(self._pb.callable_args)
-        self._callable_obj = callable_class.from_json(initializer_args)
+        self._callable_obj = callable_class.from_json(initializer_args,self.name)
 
     def to_desc(self):
         self._pb.callable_name = self._callable_obj.__class__.__name__
